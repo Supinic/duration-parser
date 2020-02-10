@@ -4,7 +4,7 @@
     "email": "supinic@pm.me"
   },
   "deprecated": false,
-  "description": "Duration parser - takes human readable time and transforms it into milliseconds",
+  "description": "Duration parser - takes human readable time string and transforms it into milliseconds, or other units.",
   "engines": {
     "node": ">= 8.0"
   },
