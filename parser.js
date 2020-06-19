@@ -20,7 +20,7 @@ module.exports = function parse (string, options = {}) {
 
 	const ranges = [];
 	let time = 0;
-	string.replace(/(\d),(\d)/g, "$1$2").replace(durationRegex, (total, amount, unit, index) => {
+	string.replace(/(\d),(\d)/g, "$1.$2").replace(durationRegex, (total, amount, unit, index) => {
 		let foundUnit = findUnit(unit);
 		if (!foundUnit) {
 			if (!targetUnit) {
