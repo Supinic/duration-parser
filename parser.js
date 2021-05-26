@@ -14,7 +14,8 @@ const findUnit = (unit) => unitsDefinition.find(i => i.name === unit.toLowerCase
  * Parses strings containing time units into a time number.
  * @param {string} input Input string to parse time duration from.
  * @param {Object} [options]
- * @param {string} [options.target]
+ * @param {string} [options.target] Explicit target time unit - if not provided, milliseconds `"ms"` is used.
+ * Full list of supported units can be found in `units.json`.
  * @param {boolean} [options.returnData] If true, return value type is altered from `number` to `DurationParserModuleResult`.
  * @param {boolean} [options.ignoreError] If true, method will return `undefined` instead of throwing on unit parse failure (see below).
  * @returns {number|DurationParserModuleResult}
