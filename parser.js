@@ -10,7 +10,7 @@ const unitsDefinition = require(__dirname + "/units.json");
 const findUnit = (unit) => unitsDefinition.find(i => i.name === unit.toLowerCase() || i.aliases.some(j => j === unit));
 
 /**
- * @typedef DurationParserModuleFunction
+ * @alias DurationParserModuleFunction
  * Parses strings containing time units into a time number.
  * @param {string} input Input string to parse time duration from.
  * @param {Object} [options]
