@@ -1,5 +1,4 @@
-declare type Time = number;
-
+export declare type Time = number;
 export declare type Range = {
     string: string;
     time: number;
