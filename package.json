@@ -15,5 +15,6 @@
   "main": "parser.js",
   "name": "duration-parser",
   "private": true,
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "types": "parser.d.ts"
 }
