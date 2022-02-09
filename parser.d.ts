@@ -7,11 +7,11 @@ export declare type Range = {
 };
 export declare type Result = {
     time: Time;
-    ranges: Array<Range>;
+    ranges: Range[];
 };
 export declare type Unit = {
     name: string;
-    aliases: Array<string>;
+    aliases: string[];
     value: number;
 };
 
