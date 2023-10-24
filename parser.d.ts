@@ -28,6 +28,6 @@ declare interface TimeOptions extends CommonOptions {
     returnData: false | undefined;
 }
 
-export declare function parse (input: string, options: ResultOptions): Result;
-export declare function parse (input: string, options: TimeOptions): Time;
-export declare function parse (input: string): Time;
+export default function parse (input: string, options: ResultOptions): Result;
+export default function parse (input: string, options: TimeOptions): Time;
+export default function parse (input: string): Time;
