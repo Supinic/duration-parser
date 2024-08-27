@@ -2,62 +2,80 @@ import { units } from "./units.json";
 
 const durationRegex = /(-?\d*\.?\d+(?:e[-+]?\d+)?)\s*([a-zμ]*)/ig;
 
-/** @type {DurationParserModuleTimeUnit[]} */
-const unitsDefinition = require(__dirname + "/units.json");
+declare type UnitDefinition = typeof units[number];
+declare type Options = {
+	target?: UnitDefinition["name"],
+	ignoreError?: boolean;
+	returnData?: boolean;
+};
+declare type Range = {
+	string: string;
+	time: number;
+	start: number;
+	end: number;
+};
+declare type Time = number;
+declare type Result = {
+	time: Time;
+	ranges: Range[];
+};
+
+declare interface CommonOptions {
+	target?: UnitDefinition["name"];
+	returnData?: boolean;
+	ignoreError?: boolean;
+}
+declare interface ResultOptions extends CommonOptions {
+	returnData: true;
+}
+declare interface TimeOptions extends CommonOptions {
+	returnData?: false | undefined;
+}
+
+const findUnit = (unit: UnitDefinition["name"]) => units.find(i => i.name === unit.toLowerCase() || i.aliases.some(j => j === unit));
 
 /**
- * @param {string} unit
- * @returns {DurationParserModuleTimeUnit}
- */
-const findUnit = (unit) => unitsDefinition.find(i => i.name === unit.toLowerCase() || i.aliases.some(j => j === unit));
-
-/**
- * @alias DurationParserModuleFunction
  * Parses strings containing time units into a time number.
- * @param {string} input Input string to parse time duration from.
- * @param {Object} [options]
- * @param {string} [options.target] Explicit target time unit - if not provided, milliseconds `"ms"` is used.
+ * @param input Input string to parse time duration from.
+ * @param [options]
+ * @param [options.target] Explicit target time unit - if not provided, milliseconds `"ms"` is used.
  * Full list of supported units can be found in `units.json`.
- * @param {boolean} [options.returnData] If true, return value type is altered from `number` to `DurationParserModuleResult`.
- * @param {boolean} [options.ignoreError] If true, method will return `undefined` instead of throwing on unit parse failure (see below).
- * @returns {number|DurationParserModuleResult}
- * @throws {TypeError} If the provided input is not a string.
- * @throws {Error} If an invalid unit is provided as `options.target`.
- * @throws {Error} If no time unit is found next to a stray number in the input string.
+ * @param [options.returnData] If true, return value type is altered from `number` to `DurationParserModuleResult`.
+ * @param [options.ignoreError] If true, method will return `undefined` instead of throwing on unit parse failure (see below).
  */
-module.exports = function parse (input, options = {}) {
-	if (typeof input !== "string") {
-		throw new TypeError("Argument input must be a string");
-	}
+function parse (input: string, options?: TimeOptions): Time;
+function parse (input: string, options: ResultOptions): Result;
+function parse (input: string, options: Options = {}): Time | Result {
+	const {
+		target = "ms",
+		ignoreError = true,
+		returnData = false
+	} = options;
 
-	options.target = options.target || "ms";
-	options.ignoreError = (typeof options.ignoreError === "boolean") ? options.ignoreError : true;
-
-	const targetUnit = findUnit(options.target);
+	const targetUnit = findUnit(target);
 	if (!targetUnit) {
-		throw new Error("Unrecognized target time unit: " + options.target);
+		throw new Error("Unrecognized target time unit: " + target);
 	}
 
-	const ranges = [];
+	const cleanInput = input.replace(/(\d),(\d)/g, "$1.$2");
+	const ranges: Range[] = [];
 	let time = 0;
-	input.replace(/(\d),(\d)/g, "$1.$2").replace(durationRegex, (total, amount, unit, index) => {
-		let foundUnit = findUnit(unit);
+
+	for (const stuff of cleanInput.matchAll(durationRegex)) {
+		const [total, amount, unit] = stuff;
+		const { index } = stuff;
+
+		const foundUnit = findUnit(unit);
 		if (!foundUnit) {
-			if (!targetUnit) {
-				foundUnit = findUnit("second");
+			if (ignoreError) {
+				continue;
 			}
 			else {
-				if (options.ignoreError) {
-					return;
-				}
-				else {
-					throw new Error("Unrecognized input time unit: " + unit);
-				}
+				throw new Error("Unrecognized input time unit: " + unit);
 			}
 		}
 
-		const deltaTime = parseFloat(amount) * foundUnit.value * (1 / targetUnit.value);
-
+		const deltaTime = Number(amount) * foundUnit.value * (1 / targetUnit.value);
 		ranges.push({
 			string: total,
 			time: deltaTime,
@@ -66,30 +84,11 @@ module.exports = function parse (input, options = {}) {
 		});
 
 		time += deltaTime;
-	});
+	}
 
-	return (options.returnData)
+	return (returnData)
 		? { time, ranges }
 		: time;
-};
+}
 
-/**
- * @typedef {Object} DurationParserModuleRange
- * @property {string} total Full string match of the time unit block.
- * @property {number} time Parsed value of the block, expressed in the provided time unit.
- * @property {number} start Start index of the time block in the original string.
- * @property {number} end End index
- */
-
-/**
- * @typedef {Object} DurationParserModuleResult
- * @property {number} time Total sum of all block's parsed times.
- * @property {DurationParserModuleRange[]} ranges List of parsed time unit block ranges.
- */
-
-/**
- * @typedef {Object} DurationParserModuleTimeUnit
- * @property {string} name Main name of the time unit.
- * @property {string[]} aliases All valid list of unit's aliases, including singular and plural - case sensitive. (!)
- * @property {number} value Value of time unit in seconds.
- */
+export = parse;
