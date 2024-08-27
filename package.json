@@ -9,12 +9,19 @@
     "node": ">= 8.0"
   },
   "files": [
-    "parser.js",
-    "units.json"
+    "build"
   ],
-  "main": "parser.js",
+  "scripts": {
+    "build": "npx tsc",
+    "prepack": "npx tsc"
+  },
+  "main": "build/parser.js",
   "name": "duration-parser",
   "private": true,
   "version": "1.0.0",
-  "types": "parser.d.ts"
+  "types": "build/parser.d.ts",
+  "packageManager": "yarn@4.3.1",
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
 }
